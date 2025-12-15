@@ -2,8 +2,10 @@ import { serve } from "bun";
 
 const server = serve({
   port: 3000,
-  fetch(req) {
+  fetch(req) { 
+    
     const url = new URL(req.url);
+    console.log('sooo')
 
     // Simple route: GET /
     if (url.pathname === "/") {
@@ -20,7 +22,8 @@ const server = serve({
         }
       );
     }
-
+   
+    
     // Route not found
     return new Response("Not Found", { status: 404 });
   },
