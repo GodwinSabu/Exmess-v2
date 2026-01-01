@@ -37,7 +37,7 @@ export const signup = async (req: Request): Promise<Response> => {
   }
 };
 
-// ---------- SIGNIN ----------
+// ---------- SIGNIN ----------kk
 export const signin = async (req: Request): Promise<Response> => {
   try {
     const { email } = (await req.json()) as { email?: string };
@@ -77,7 +77,7 @@ export const authPost = async (req: Request): Promise<Response> => {
   users.add(email);
 
   const sessionToken = generateSessionToken(email);
-  const isProd = NODE_ENV === "production";
+  const isProd = NODE_ENV === "production"; 
   const cookie = [
     `authToken=${sessionToken}`,
     "Path=/",
