@@ -64,7 +64,7 @@ export const signin = async (req: Request): Promise<Response> => {
   }
 };
 
-// ---------- AUTH CALLBACK ----------ddd
+// ---------- AUTH CALLBACK ----------dddgggg
 export const authPost = async (req: Request): Promise<Response> => {
   const url = new URL(req.url);
   const token = url.searchParams.get("token");
