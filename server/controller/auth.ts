@@ -1,101 +1,175 @@
-import { prisma } from "@prisma/client";
 import { generateLinkToken, generateSessionToken, verifyToken } from "../token";
 import { BACKEND_URL, FRONTEND_URL, NODE_ENV } from "../config";
-import { jsonResponse } from "../utils/jsonResponse";
+import { sendAuthEmail } from "../resend";
+import { jsonResponse } from "../utills/jsonResponse";
+import { prisma } from "../../packages/db";
 
-// ---- MOCK EMAIL SENDER (for now) ----
-async function sendAuthEmail(email: string, type: "signup" | "signin", token: string) {
-  const link = `${BACKEND_URL}/api/v1/signin/post?token=${token}`;
-  console.log(`📧 EMAIL TO: ${email}`);
-  console.log(`[${type.toUpperCase()} LINK]: ${link}`);
-}
 
-// ---------- SIGNUP ----------
+
+/**
+ * TEMP in-memory users
+ * (later replace with Prisma)
+ */
 export const signup = async (req: Request): Promise<Response> => {
   try {
-    const { email } = (await req.json()) as { email?: string };
-    if (!email) return jsonResponse({ error: "Email required" }, 400);
+      const { email } = await req.json() as { email?: string };
+      if (!email) return jsonResponse({ error: "Email required" }, 400);
 
-    const existingUser = await prisma.user.findUnique({ where: { email } });
-    if (existingUser) {
-      return jsonResponse({ message: "User already exists" }, 409);
-    }
 
-    const token = generateLinkToken(email);
-    await sendAuthEmail(email, "signup", token);
+      const existingUser = await prisma.user.findUnique({
+          where: {
+              email
+          }
+      });
 
-    return jsonResponse({
-      message: "Check your email for signup link",
-    });
-  } catch {
-    return jsonResponse({ error: "Internal Server Error" }, 500);
+      if (existingUser) {
+          return jsonResponse({
+              success: false,
+              message: "User already exists"
+          }, 409);
+      }
+
+      const token = generateLinkToken(email);
+      await sendAuthEmail(email, "signup", token);
+
+      return jsonResponse({
+          message: "Kindly check your mail for the signup link"
+      });
+  } catch (error: any) {
+      return jsonResponse({
+          message: "Internal Server error",
+          error: String(error)
+      }, 500);
   }
-};
+}
 
-// ---------- SIGNIN ----------
+
+// ---------- SIGNIN ----------kk
 export const signin = async (req: Request): Promise<Response> => {
   try {
-    const { email } = (await req.json()) as { email?: string };
-    if (!email) return jsonResponse({ error: "Email required" }, 400);
+      const { email } = await req.json() as { email?: string };
+      if (!email) return jsonResponse({ error: "Email required" }, 400);
 
-    const user = await prisma.user.findUnique({ where: { email } });
-    if (!user) {
-      return jsonResponse({ message: "User not found" }, 404);
-    }
+      const existingUser = await prisma.user.findUnique({
+          where: {
+              email
+          }
+      });
 
-    const token = generateLinkToken(email);
-    await sendAuthEmail(email, "signin", token);
+      if (!existingUser) {
+          return jsonResponse({
+              success: false,
+              message: "User not found"
+          }, 404);
+      }
 
-    return jsonResponse({
-      message: "Check your email for signin link",
-    });
-  } catch {
-    return jsonResponse({ error: "Internal Server Error" }, 500);
+      const token = generateLinkToken(email);
+      await sendAuthEmail(email, "signin", token)
+
+      return jsonResponse({
+          message: "Kindly check your mail for the signin link"
+      });
+  } catch (error: any) {
+      return jsonResponse({
+          message: "Internal Server error",
+          error: error.message
+      }, 500);
   }
-};
+}
 
-// ---------- AUTH CALLBACK ----------
+// ---------- AUTH CALLBACK ----------dd
 export const authPost = async (req: Request): Promise<Response> => {
-  const url = new URL(req.url);
-  const token = url.searchParams.get("token");
+  try {
+      const url = new URL(req.url);
+      const token = url.searchParams.get('token');
 
-  if (!token) return jsonResponse({ error: "Invalid token" }, 400);
+      if (!token || typeof token !== "string") {
+          return jsonResponse({ error: "Invalid token" }, 400);
+      }
 
-  const email = verifyToken(token);
-  if (!email) return jsonResponse({ error: "Expired token" }, 400);
+      const email = verifyToken(token);
+      if (!email) return jsonResponse({ error: "Invalid/expired token" }, 400);
 
-  let user = await prisma.user.findUnique({ where: { email } });
+      const walletChannel = "user_wallet_stream";
+      const event = "INITIALIZE_WALLET"
 
-  if (!user) {
-    user = await prisma.user.create({
-      data: { email, lastLoggedIn: new Date() },
-    });
-  } else {
-    await prisma.user.update({
-      where: { email },
-      data: { lastLoggedIn: new Date() },
-    });
+    //   await REDIS_PUSH_QUEUE.lpush(walletChannel, JSON.stringify({ email, event }))
+
+      const sessionToken = generateSessionToken(email);
+
+      const existingUser = await prisma.user.findUnique({
+          where: { email }
+      });
+
+      if (!existingUser) {
+          await prisma.user.create({
+              data: {
+                  email,
+                  lastLoggedIn: new Date()
+              }
+          })
+      }
+
+      const isProd = process.env.NODE_ENV === "production";
+
+      const cookieOptions = [
+          "Path=/",
+          "HttpOnly",
+          isProd ? "SameSite=None" : "SameSite=Lax",
+          isProd ? "Secure" : "",
+          isProd ? "Domain=.rudrasankha.com" : "",
+          "Max-Age=604800",
+      ]
+          .filter(Boolean)
+          .join("; ");
+
+
+
+      return new Response(null, {
+          status: 302,
+          headers: {
+              Location: `${FRONTEND_URL}/dashboard`,
+              "Set-Cookie": `authToken=${sessionToken}; ${cookieOptions}`,
+          },
+      });
+  } catch (error) {
+      console.log('error: ', error);
+      return jsonResponse({
+          message: "Internal Server Error"
+      }, 500);
   }
+}
 
-  const sessionToken = generateSessionToken(email);
-  const isProd = NODE_ENV === "production";
+export const logout = async (_req: Request): Promise<Response> => {
+  try {
 
-  const cookie = [
-    `authToken=${sessionToken}`,
-    "Path=/",
-    "HttpOnly",
-    isProd ? "Secure" : "",
-    isProd ? "SameSite=None" : "SameSite=Lax",
-    "Max-Age=604800",
-  ]
-    .filter(Boolean)
-    .join("; ");
+      const isProd = process.env.NODE_ENV === "production";
 
-  return new Response(null, {
-    status: 302,
-    headers: {
-      "Set-Cookie": cookie,
-      Location: `${FRONTEND_URL}/dashboard`,
-    },
-  });
+      const cookieOptions = [
+          "Path=/",
+          "HttpOnly",
+          isProd ? "SameSite=None" : "SameSite=Lax",
+          isProd ? "Secure" : "",
+          isProd ? "Domain=.rudrasankha.com" : "",
+          "Expires=Thu, 01 Jan 1970 00:00:00 GMT"
+      ]
+          .filter(Boolean)
+          .join("; ");
+
+      return new Response(
+          JSON.stringify({ message: "Logged out" }),
+          {
+              status: 200,
+              headers: {
+                  "Content-Type": "application/json",
+                  "Set-Cookie": `authToken=; ${cookieOptions}`
+              }
+          }
+      );
+  } catch (error) {
+      return jsonResponse(
+          { message: "Internal Server Error", error: String(error) },
+          500
+      );
+  }
 };
