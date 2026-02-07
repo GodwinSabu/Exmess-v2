@@ -10,6 +10,8 @@ import { prisma } from "../../packages/db";
  * TEMP in-memory users
  * (later replace with Prisma)
  */
+
+
 export const signup = async (req: Request): Promise<Response> => {
   try {
       const { email } = await req.json() as { email?: string };
@@ -93,7 +95,7 @@ export const authPost = async (req: Request): Promise<Response> => {
       const walletChannel = "user_wallet_stream";
       const event = "INITIALIZE_WALLET"
 
-    //   await REDIS_PUSH_QUEUE.lpush(walletChannel, JSON.stringify({ email, event }))
+    //   await REDIS_PUSH_QUEUE.lpush(walletChannel, JSON.stringify({ email, event }))  ao
 
       const sessionToken = generateSessionToken(email);
 

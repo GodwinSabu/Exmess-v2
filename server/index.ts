@@ -1,5 +1,6 @@
 import { serve } from "bun";
 import { authPost, signin, signup } from "./controller/auth";
+import { createTrade } from "./controller/trade";
 
 const server = serve({
   port: 8000,
@@ -21,6 +22,9 @@ const server = serve({
 
     if (pathname === "/api/v1/signin/post" && req.method === "GET") {
       return authPost(req);
+    }
+    if (pathname === "/api/v1/create" && req.method === "POST") {
+      return createTrade(req);
     }
 
     // -------- TEST ROUTES --------
