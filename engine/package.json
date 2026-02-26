@@ -9,5 +9,8 @@
   },
   "devDependencies": {
     "@types/bun": "latest"
+  },
+  "dependencies": {
+    "ioredis": "^5.9.3"
   }
 }
