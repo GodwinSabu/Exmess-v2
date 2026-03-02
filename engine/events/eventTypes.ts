@@ -11,6 +11,8 @@ export type EngineEvent =
         tradeType: TradeType;
         margin: bigint;
         leverage: number;
+        expectedPrice: bigint;
+        slippageBps: number;
       };
     }
   | {

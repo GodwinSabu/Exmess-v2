@@ -5,15 +5,22 @@ import { setPrice, getPrice } from "../state/priceStore";
 import { calculateLiquidationPrice } from "../domain/liquidation";
 import { calculatePnL } from "../domain/pnl";
 import type { Trade } from "../domain/trade";
+import { validateSlippage } from "../domain/slippage";
 
 export function processEvent(event: EngineEvent) {
 
   switch (event.type) {
 
     case "OPEN_TRADE": {
-      const { orderId, email, asset, tradeType, margin, leverage } = event.payload;
+      const { orderId, email, asset, tradeType, margin, leverage, expectedPrice, slippageBps } = event.payload;
 
       const currentPrice = getPrice(asset);
+
+validateSlippage  (
+    expectedPrice,
+  currentPrice,
+  slippageBps
+);
 
       debitWallet(email, margin);
 

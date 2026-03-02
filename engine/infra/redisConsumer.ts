@@ -1,12 +1,14 @@
 import Redis from "ioredis";
 import { processEvent } from "../events/processor";
 import type { EngineEvent } from "../events/eventTypes";
+import { hasProcessed, markProcessed } from "../state/eventStore";
 
 const redis = new Redis("redis://127.0.0.1:6379");
 
 const STREAM = "engine_stream";
 const GROUP = "engine_group";
 const CONSUMER = "engine_1";
+const DEAD_LETTER_STREAM = "engine_dead_letter_stream";
 
 async function ensureGroup() {
   try {
@@ -57,22 +59,38 @@ export async function startRedisConsumer() {
 
     for (const [, entries] of response) {
       for (const [id, fields] of entries) {
+        let payload: unknown = undefined;
+      
         try {
-            const kv = fieldsToObject(fields);
+          const kv = fieldsToObject(fields);
+          const data = kv["data"];
+      
+          if (!data) {
+            console.error("Missing data field");
+            continue;
+          }
+      
+          payload = JSON.parse(data);
 
-            const data = kv["data"];
-            if (!data) {
-              console.error("Missing data field");
-              continue;
+            if (!hasProcessed(id)) {
+              processEvent(payload as EngineEvent);
+              markProcessed(id);
             }
             
-            const payload = JSON.parse(data);
-
-          processEvent(payload as EngineEvent);
-
-          await redis.xack(STREAM, GROUP, id);
+            await redis.xack(STREAM, GROUP, id);
         } catch (err) {
           console.error("❌ Failed to process event:", err);
+
+          await redis.xadd(
+            DEAD_LETTER_STREAM,
+            "*",
+            "originalId",
+            id,
+            "error",
+            String(err),
+            "data",
+            JSON.stringify(payload)
+          );
         }
       }
     }

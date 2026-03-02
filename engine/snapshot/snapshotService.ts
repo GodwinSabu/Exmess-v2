@@ -4,6 +4,7 @@ import { getAllPrices } from "../state/priceStore";
 import { writeFileSync, readFileSync, existsSync } from "fs";
 import type { Trade } from "../domain/trade";
 import type { Asset } from "../config";
+import { getAllProcessedEvents } from "../state/eventStore";
 // import type { TradeType } from "../domain/trade";
 
 const SNAPSHOT_FILE = "./engine_snapshot.json";
@@ -91,6 +92,7 @@ export function restoreSnapshot() {
   for (const [k, v] of prices) {
     getAllPrices().set(k, v);
   }
+  events: Array.from(getAllProcessedEvents())
 
   console.log("✅ Snapshot restored.");
 }
