@@ -11,14 +11,47 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+  
 }
 
-model User {
+model Asset {
+  id      Int     @id @default(autoincrement())
+  symbol  String  @unique
+  trades  Trade[]
+}
+
+model Trade {
+  id          Int      @id @default(autoincrement())
+  orderId     String   @unique
+  openPrice   Float
+  closePrice  Float?
+  leverage    Int
+  pnl         Float?
+  liquidated  Boolean
+  tradeType   TradeType
+  createdAt   DateTime @default(now())
+
+  userId   Int
+  user     User @relation(fields: [userId], references: [id])
+
+  assetId  Int
+  asset    Asset @relation(fields: [assetId], references: [id])
+}
+
+model Snapshot {
   id           Int      @id @default(autoincrement())
-  email        String   @unique
-  name         String?
+  openOrders   Json
+  closedOrders Json
+  balances     Json
   createdAt    DateTime @default(now())
-  lastLoggedIn DateTime?
 }
 
+enum TradeType {
+  LONG
+  SHORT
+}
+model User {
+  id     Int     @id @default(autoincrement())
+  email  String  @unique
+  trades Trade[]
+}

@@ -1,16 +1,16 @@
 {
-  "name": "db",
+  "name": "@superapp/db",
   "module": "index.ts",
+  "private": true,
+  "type": "module",
   "devDependencies": {
     "@types/bun": "latest",
-    "prisma": "5.13.0"
+    "prisma": "^7.4.2"
   },
   "peerDependencies": {
     "typescript": "^5"
   },
-  "private": true,
-  "type": "module",
   "dependencies": {
-    "@prisma/client": "5.13.0"
+    "@prisma/client": "7"
   }
 }
