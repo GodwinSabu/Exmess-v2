@@ -11,7 +11,7 @@
     "typescript": "^5"
   },
   "dependencies": {
-    "@exness/db": "workspace:*",
+    "@superapp/db": "workspace:*",
     "jsonwebtoken": "^9.0.3"
   }
 }

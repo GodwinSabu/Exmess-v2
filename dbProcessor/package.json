@@ -1,9 +1,10 @@
 {
-    "name": "db-processor",
-    "type": "module",
-    "private": true,
-    "dependencies": {
-      "ioredis": "^5.3.2",
-      "@superapp/db": "workspace:*"
-    }
+  "name": "db-processor",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "dependencies": {
+    "ioredis": "^5.3.2",
+    "@superapp/db": "workspace:*"
   }
+}

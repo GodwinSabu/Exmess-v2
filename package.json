@@ -4,7 +4,10 @@
   "private": true,
 
   "workspaces": [
-    "apps/*",
+    "dbProcessor",
+    "engine",
+    "poller",
+    "server",
     "packages/*"
   ],
 
