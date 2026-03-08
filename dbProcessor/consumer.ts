@@ -9,20 +9,20 @@ export async function startDBProcessor() {
     console.log("Waiting for Redis events...");
 
     const res = await redis.xreadgroup(
-      "GROUP",
-      GROUP,
-      CONSUMER,
-      "COUNT",
-      50,
-      "BLOCK",
-      5000,
-      "STREAMS",
-      OPERATIONS_STREAM,
-      ">"
-    ) as any;
-
-    console.log("Redis returned:", res);
-    if (!res) continue;
+        "GROUP", GROUP, CONSUMER,
+        "COUNT", 50,
+        "BLOCK", 5000,
+        "STREAMS", OPERATIONS_STREAM,
+        ">"
+      ) as any;
+  
+      console.log("Raw Redis response:", JSON.stringify(res)); // 👈 add this
+      if (!res) {
+        console.log("No messages yet, polling again..."); // 👈 add this
+        continue;
+      }
+  
+      console.log("Got messages!", res.length); // 👈 add this
 
     for (const [, entries] of res) {
 

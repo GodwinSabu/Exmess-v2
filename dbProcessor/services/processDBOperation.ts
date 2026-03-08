@@ -4,7 +4,7 @@ export async function processDBOperation(operation: string, data: any) {
   switch (operation) {
 
     case "CREATE_TRADE": {
-
+console.log("Creating trade:", data);
       const user = await prisma.user.upsert({
         where: { email: data.email },
         update: {},
