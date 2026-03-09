@@ -38,7 +38,7 @@ console.log("Creating trade:", data);
         }
       });
 
-      console.log("Trade updated:", data.orderId);
+     
       break;
     }
 
