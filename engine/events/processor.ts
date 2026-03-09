@@ -6,8 +6,9 @@ import { calculateLiquidationPrice } from "../domain/liquidation";
 import { calculatePnL } from "../domain/pnl";
 import type { Trade } from "../domain/trade";
 import { validateSlippage } from "../domain/slippage";
+import { queueDBOperation } from "../infra/dbQueue";
 
-export function processEvent(event: EngineEvent) {
+export async function processEvent(event: EngineEvent) {
 
   switch (event.type) {
 
@@ -45,6 +46,16 @@ validateSlippage  (
       };
 
       saveTrade(trade);
+       // 2️⃣ Push event to DB queue
+       await queueDBOperation("CREATE_TRADE", {
+        orderId,
+        email,
+        openPrice: currentPrice,
+        leverage,
+        liquidated: false,
+        assetId: asset,
+        tradeType
+      }); 
 
       break;
     }
@@ -62,6 +73,12 @@ validateSlippage  (
       creditWallet(trade.email, trade.margin + pnl);
 
       closeTrade(orderId);
+      await queueDBOperation("UPDATE_TRADE", {
+        orderId,
+        closePrice: currentPrice,
+        pnl: Number(pnl),
+        liquidated: isLiquidated
+      });
 
       break;
     }

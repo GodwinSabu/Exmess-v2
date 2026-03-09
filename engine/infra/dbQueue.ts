@@ -1,4 +1,4 @@
-import { redis } from "./redis";
+import { redis } from "./redis/client";    
 
 const QUEUE_NAME = "db_operations_queue";
 
