@@ -20,6 +20,56 @@ async function ensureGroup() {
   }
 }
 
+async function replayPendingEvents() {
+
+  console.log("Replaying pending events...");
+
+  const pending = await redis.xpending(STREAM, GROUP) as [number, string, string, any[]];
+
+if (!pending || pending[0] === 0) {
+  console.log("No pending events");
+  return;
+}
+
+  const res = await redis.xreadgroup(
+    "GROUP",
+    GROUP,
+    CONSUMER,
+    "COUNT",
+    50,
+    "STREAMS",
+    STREAM,
+    "0"
+  ) as [string, [string, string[]][]][] | null;
+
+  if (!res) return;
+
+  for (const [, entries] of res) {
+    for (const [id, fields] of entries) {
+
+      try {
+
+        const kv = fieldsToObject(fields);
+
+        const data = kv["data"];
+        if (!data) continue;
+
+        const payload = JSON.parse(data);
+
+        processEvent(payload as EngineEvent);
+
+        await redis.xack(STREAM, GROUP, id);
+
+        console.log("Replayed event:", id);
+
+      } catch (err) {
+        console.error("Replay failed:", err);
+      }
+
+    }
+  }
+}
+
 function fieldsToObject(fields: string[]) {
     const obj: Record<string, string> = {};
   
@@ -37,6 +87,7 @@ function fieldsToObject(fields: string[]) {
 
 export async function startRedisConsumer() {
   await ensureGroup();
+  await replayPendingEvents();
 
   console.log("🚀 Redis consumer started...");
 

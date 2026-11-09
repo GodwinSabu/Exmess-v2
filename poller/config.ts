@@ -6,4 +6,4 @@ export const REDIS_URL =
 
 export const WS_URL = "wss://ws.backpack.exchange/";
 
-export const ASSETS = ["SOL_USDC", "BTC_USDC", "ETH_USDC"];
+export const assets = ["SOL_USDC", "BTC_USDC", "ETH_USDC"];
