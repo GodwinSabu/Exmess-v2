@@ -11,15 +11,28 @@ console.log("Creating trade:", data);
         create: { email: data.email }
       });
 
+      // The engine identifies assets by symbol ("BTC"); Trade.assetId is the
+      // Asset row's numeric id, so resolve (or create) that row first.
+      const symbol = String(data.asset ?? data.assetId);
+
+      const asset = await prisma.asset.upsert({
+        where: { symbol },
+        update: {},
+        create: { symbol }
+      });
+
+      // Engine sends "long" / "short"; the DB enum is LONG / SHORT.
+      const tradeType = String(data.tradeType).toUpperCase() === "SHORT" ? "SHORT" : "LONG";
+
       await prisma.trade.create({
         data: { 
           orderId: data.orderId,
           openPrice: data.openPrice,
           leverage: data.leverage,
           liquidated: data.liquidated,
-          tradeType: data.tradeType,
+          tradeType,
           userId: user.id,
-          assetId: data.assetId
+          assetId: asset.id
         }
       });
 
@@ -38,7 +51,7 @@ console.log("Creating trade:", data);
         }
       });
 
-     
+      console.log("Trade closed:", data.orderId);
       break;
     }
 

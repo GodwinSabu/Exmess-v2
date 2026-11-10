@@ -11,6 +11,18 @@ import { prisma } from "../../packages/db";
  * (later replace with Prisma)
  */
 
+/** The magic link the user opens to finish signing in. */
+const buildAuthLink = (token: string) =>
+  `${BACKEND_URL}/api/v1/signin/post?token=${token}`;
+
+/**
+ * There is no real email provider yet (see resend.ts), so outside production
+ * the link is also returned to the client and the UI can offer it directly.
+ * NEVER returned in production: it would let anyone sign in as any email.
+ */
+const devLink = (link: string) =>
+  process.env.NODE_ENV === "production" ? {} : { devLink: link };
+
 
 export const signup = async (req: Request): Promise<Response> => {
   try {
@@ -32,10 +44,12 @@ export const signup = async (req: Request): Promise<Response> => {
       }
 
       const token = generateLinkToken(email);
-      await sendAuthEmail(email, "signup", token);
+      const link = buildAuthLink(token);
+      await sendAuthEmail(email, "signup", link);
 
       return jsonResponse({
-          message: "Kindly check your mail for the signup link"
+          message: "Kindly check your mail for the signup link",
+          ...devLink(link)
       });
   } catch (error: any) {
       return jsonResponse({
@@ -66,10 +80,12 @@ export const signin = async (req: Request): Promise<Response> => {
       }
 
       const token = generateLinkToken(email);
-      await sendAuthEmail(email, "signin", token)
+      const link = buildAuthLink(token);
+      await sendAuthEmail(email, "signin", link)
 
       return jsonResponse({
-          message: "Kindly check your mail for the signin link"
+          message: "Kindly check your mail for the signin link",
+          ...devLink(link)
       });
   } catch (error: any) {
       return jsonResponse({
@@ -106,8 +122,7 @@ export const authPost = async (req: Request): Promise<Response> => {
       if (!existingUser) {
           await prisma.user.create({
               data: {
-                  email,
-                  lastLoggedIn: new Date()
+                  email
               }
           })
       }
@@ -140,6 +155,12 @@ export const authPost = async (req: Request): Promise<Response> => {
           message: "Internal Server Error"
       }, 500);
   }
+}
+
+// ---------- CURRENT USER ----------
+// Runs behind requireAuth, which puts the signed-in user on the request.
+export const me = async (req: Request): Promise<Response> => {
+  return jsonResponse({ success: true, email: (req as any).user?.email });
 }
 
 export const logout = async (_req: Request): Promise<Response> => {

@@ -1,0 +1,286 @@
+/* Design tokens, reset and the small shared primitives (buttons, inputs, chips).
+   One dark theme, tuned for a trading terminal. Up/down colours are checked
+   for colour-blind separation; text colours clear 4.5:1 on the panel surface. */
+
+:root {
+  color-scheme: dark;
+
+  --bg: #0b0e14; /* page plane, shows through as the gutters */
+  --surface: #131722; /* panels and the chart */
+  --surface-2: #1a1f2e; /* raised: inputs, hover */
+  --surface-3: #232a3b; /* pressed / selected */
+  --line: #232838; /* hairlines */
+  --line-strong: #2e3548; /* control borders */
+
+  --text: #dfe3ec;
+  --text-2: #a3abbd;
+  --text-3: #8690a6;
+
+  --accent: #2f6bea;
+  --accent-hover: #3d7bfd;
+  --accent-text: #6ea0ff;
+
+  --up: #26a69a; /* marks + text */
+  --up-fill: #1a8177; /* button fill (white text clears 4.5:1) */
+  --up-fill-hover: #1d8f84;
+  --up-soft: rgba(38, 166, 154, 0.14);
+
+  --down: #ef5350;
+  --down-fill: #d33f3c;
+  --down-fill-hover: #dd4a47;
+  --down-soft: rgba(239, 83, 80, 0.14);
+
+  --warn: #f0b429;
+  --warn-soft: rgba(240, 180, 41, 0.12);
+
+  --radius: 6px;
+  --radius-sm: 4px;
+  --gap: 4px;
+  --shadow: 0 16px 48px rgba(0, 0, 0, 0.55);
+  --font: -apple-system, BlinkMacSystemFont, "Segoe UI", "Trebuchet MS", Roboto, Ubuntu, sans-serif;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--line-strong) transparent;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 13px/1.45 var(--font);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3,
+p,
+dl,
+dt,
+dd,
+ul {
+  margin: 0;
+  padding: 0;
+}
+
+ul {
+  list-style: none;
+}
+
+button,
+input {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+a {
+  color: var(--accent-text);
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent-hover);
+  outline-offset: 1px;
+}
+
+/* Columns of figures line up; ticking prices don't jitter. */
+.num {
+  font-variant-numeric: tabular-nums;
+}
+
+.up {
+  color: var(--up);
+}
+
+.down {
+  color: var(--down);
+}
+
+.flat {
+  color: var(--text-2);
+}
+
+.muted {
+  color: var(--text-3);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ---------- panels ---------- */
+
+.panel {
+  min-width: 0;
+  background: var(--surface);
+  border-radius: var(--radius);
+}
+
+.panel-title {
+  padding: 12px 12px 6px;
+  color: var(--text-2);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* ---------- buttons ---------- */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 12px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  color: var(--text);
+  font-weight: 600;
+  text-decoration: none; /* a link styled as a button */
+  white-space: nowrap;
+  transition: background 0.12s ease;
+}
+
+.btn:hover:not(:disabled) {
+  background: var(--surface-3);
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: #fff;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: var(--accent-hover);
+}
+
+.btn-ghost {
+  border-color: var(--line-strong);
+  background: transparent;
+  color: var(--text-2);
+}
+
+.btn-ghost:hover:not(:disabled) {
+  background: var(--surface-2);
+  color: var(--text);
+}
+
+.btn-sm {
+  height: 26px;
+  padding: 0 10px;
+  font-size: 12px;
+}
+
+.btn-block {
+  width: 100%;
+  height: 40px;
+  font-size: 14px;
+}
+
+/* ---------- chips (quick picks) ---------- */
+
+.chips {
+  display: flex;
+  gap: 4px;
+}
+
+.chip {
+  flex: 1;
+  min-width: 0;
+  height: 24px;
+  padding: 0 4px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-2);
+  font-size: 12px;
+}
+
+.chip:hover:not(:disabled) {
+  background: var(--surface-2);
+  color: var(--text);
+}
+
+.chip[aria-pressed="true"] {
+  border-color: var(--text-3);
+  background: var(--surface-3);
+  color: var(--text);
+}
+
+.chip:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* ---------- inputs ---------- */
+
+.input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 36px;
+  padding: 0 10px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+}
+
+.input-wrap:focus-within {
+  border-color: var(--accent-hover);
+}
+
+.input-wrap input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+}
+
+.input-wrap input::placeholder {
+  color: var(--text-3);
+}
+
+.input-wrap .suffix {
+  color: var(--text-3);
+  font-size: 12px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}

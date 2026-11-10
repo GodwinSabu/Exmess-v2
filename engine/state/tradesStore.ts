@@ -16,6 +16,12 @@ export function getOpenTradesByAsset(asset: string): Trade[] {
   );
 }
 
+export function getOpenTradesByEmail(email: string): Trade[] {
+  return Array.from(trades.values()).filter(
+    (t) => t.email === email && t.status === "open"
+  );
+}
+
 export function closeTrade(orderId: string) {
   const trade = trades.get(orderId);
   if (!trade) throw new Error("Trade not found");

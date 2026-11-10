@@ -1,0 +1,241 @@
+/* App shell: top bar + a two-column workspace (chart left, trading right). */
+
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+  min-width: 320px;
+}
+
+/* ---------- top bar ---------- */
+
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  height: 48px;
+  padding: 0 12px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text);
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+}
+
+.brand svg {
+  display: block;
+}
+
+.topbar-spacer {
+  flex: 1;
+}
+
+.feed-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 24px;
+  padding: 0 9px;
+  border-radius: 12px;
+  background: var(--surface-2);
+  color: var(--text-2);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.feed-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--text-3);
+}
+
+.feed-badge[data-status="live"] .feed-dot {
+  background: var(--up);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.feed-badge[data-status="stale"] {
+  color: var(--warn);
+}
+
+.feed-badge[data-status="stale"] .feed-dot {
+  background: var(--warn);
+}
+
+.feed-badge[data-status="offline"] {
+  color: var(--down);
+}
+
+.feed-badge[data-status="offline"] .feed-dot {
+  background: var(--down);
+}
+
+@keyframes pulse {
+  50% {
+    opacity: 0.35;
+  }
+}
+
+.account-stats {
+  display: flex;
+  gap: 22px;
+}
+
+.account-stats dt {
+  color: var(--text-3);
+  font-size: 11px;
+  line-height: 1.2;
+}
+
+.account-stats dd {
+  font-size: 13px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.user-email {
+  max-width: 180px;
+  overflow: hidden;
+  color: var(--text-2);
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ---------- status banner (engine / server trouble) ---------- */
+
+.banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 12px;
+  background: var(--warn-soft);
+  color: var(--warn);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* ---------- workspace ---------- */
+
+.workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: var(--gap);
+  flex: 1;
+  min-height: 0;
+  padding: var(--gap);
+}
+
+.main-col {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) 264px;
+  gap: var(--gap);
+  min-width: 0;
+  min-height: 0;
+}
+
+.side-col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap);
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.side-col > .order {
+  flex: 1 0 auto;
+}
+
+/* ---------- narrow screens: one scrolling column ----------
+   Order: market header, chart, order ticket, positions, markets. */
+
+@media (max-width: 960px) {
+  .app {
+    height: auto;
+    min-height: 100dvh;
+  }
+
+  .workspace {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .main-col,
+  .side-col {
+    display: contents;
+  }
+
+  .market-header {
+    order: 1;
+    flex-wrap: wrap;
+    gap: 10px 20px;
+    overflow-x: visible;
+  }
+
+  /* Stats drop onto their own rows under the symbol and price. */
+  .market-stats {
+    flex: 1 1 100%;
+    flex-wrap: wrap;
+    gap: 8px 20px;
+  }
+
+  .chart-panel {
+    order: 2;
+    height: 62vh;
+    min-height: 360px;
+  }
+
+  .order {
+    order: 3;
+  }
+
+  .positions {
+    order: 4;
+    min-height: 220px;
+  }
+
+  .watchlist {
+    order: 5;
+  }
+
+  .account-stats {
+    gap: 14px;
+  }
+
+  .account-stats .optional,
+  .user-email {
+    display: none;
+  }
+}
+
+@media (max-width: 520px) {
+  .topbar {
+    gap: 8px;
+    padding: 0 8px;
+  }
+
+  .brand span,
+  .feed-badge .feed-label {
+    display: none;
+  }
+
+  .feed-badge {
+    padding: 0 8px;
+  }
+}

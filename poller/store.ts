@@ -6,5 +6,5 @@ export const decimals: Record<string, number> = {
   
   export const latestPrices: Record<
     string,
-    { price: number; decimal: number }
+    { price: number; decimal: number; bid: number; ask: number }
   > = {};

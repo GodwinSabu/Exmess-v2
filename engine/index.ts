@@ -93,14 +93,16 @@ async function bootstrap() {
   console.log("💰 Wallets:", getAllWallets());
   console.log("📈 Prices:", getAllPrices());
 
-  // Start Redis Stream consumer
-  await startRedisConsumer();
-
-  // Auto-save snapshot every 10s
+  // Auto-save snapshot every 10s.
+  // Must be scheduled BEFORE the consumer starts: startRedisConsumer() loops
+  // forever, so nothing after that await ever runs.
   setInterval(() => {
     saveSnapshot();
     console.log("💾 Snapshot saved");
   }, 10000);
+
+  // Start Redis Stream consumer (runs until the process exits)
+  await startRedisConsumer();
 }
 
 bootstrap();

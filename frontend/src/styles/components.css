@@ -1,0 +1,272 @@
+/* Market header, watchlist and the order ticket. */
+
+/* ---------- market header ---------- */
+
+.market-header {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 10px 14px;
+  overflow-x: auto;
+  scrollbar-width: none; /* still scrollable on narrow screens, without a bar under the stats */
+}
+
+.market-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: none;
+}
+
+.asset-icon {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--surface-3);
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.asset-icon.sm {
+  width: 24px;
+  height: 24px;
+  font-size: 10px;
+}
+
+.market-title h1 {
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.market-title h1 span {
+  color: var(--text-3);
+  font-weight: 600;
+}
+
+.market-title p {
+  color: var(--text-3);
+  font-size: 12px;
+}
+
+.market-price {
+  flex: none;
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  transition: color 0.2s ease;
+}
+
+.market-stats {
+  display: flex;
+  gap: 24px;
+  flex: none;
+}
+
+.market-stats dt {
+  color: var(--text-3);
+  font-size: 11px;
+}
+
+.market-stats dd {
+  font-size: 13px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* ---------- watchlist ---------- */
+
+.watchlist ul {
+  padding: 0 4px 6px;
+}
+
+.watch-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto 62px;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  text-align: left;
+}
+
+.watch-row:hover {
+  background: var(--surface-2);
+}
+
+.watch-row[aria-pressed="true"] {
+  background: var(--surface-3);
+}
+
+.watch-asset {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.watch-asset strong {
+  display: block;
+  font-size: 13px;
+  line-height: 1.25;
+}
+
+.watch-asset small {
+  display: block;
+  overflow: hidden;
+  color: var(--text-3);
+  font-size: 11px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.watch-price,
+.watch-change {
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.watch-change {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* ---------- order ticket ---------- */
+
+.order {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 12px;
+}
+
+.side-toggle {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  padding: 3px;
+  border-radius: var(--radius);
+  background: var(--bg);
+}
+
+.side-btn {
+  height: 32px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-2);
+  font-weight: 700;
+}
+
+.side-btn:hover {
+  color: var(--text);
+}
+
+.side-btn.long[aria-pressed="true"] {
+  background: var(--up-fill);
+  color: #fff;
+}
+
+.side-btn.short[aria-pressed="true"] {
+  background: var(--down-fill);
+  color: #fff;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.field-label {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  color: var(--text-2);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.field-label .aside {
+  color: var(--text-3);
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+}
+
+.field-label output {
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.range {
+  width: 100%;
+  height: 20px;
+  margin: 0;
+  accent-color: var(--accent-hover);
+}
+
+.order-summary {
+  display: grid;
+  gap: 7px;
+  padding: 10px;
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+}
+
+.order-summary div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 12px;
+}
+
+.order-summary dt {
+  color: var(--text-3);
+}
+
+.order-summary dd {
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.form-hint {
+  color: var(--warn);
+  font-size: 12px;
+}
+
+.btn-long {
+  background: var(--up-fill);
+  color: #fff;
+}
+
+.btn-long:hover:not(:disabled) {
+  background: var(--up-fill-hover);
+}
+
+.btn-short {
+  background: var(--down-fill);
+  color: #fff;
+}
+
+.btn-short:hover:not(:disabled) {
+  background: var(--down-fill-hover);
+}
+
+.fineprint {
+  color: var(--text-3);
+  font-size: 11px;
+  line-height: 1.4;
+}

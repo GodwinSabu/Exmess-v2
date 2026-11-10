@@ -19,6 +19,8 @@ export type EngineEvent =
       type: "CLOSE_TRADE";
       payload: {
         orderId: string;
+        // When set, the trade must belong to this user.
+        email?: string;
       };
     }
   | {
@@ -26,5 +28,19 @@ export type EngineEvent =
       payload: {
         asset: Asset;
         price: bigint;
+        // When the poller observed the price (ms epoch). Defaults to now.
+        ts?: number;
+      };
+    }
+  | {
+      type: "GET_BALANCE";
+      payload: {
+        email: string;
+      };
+    }
+  | {
+      type: "GET_OPEN_TRADES";
+      payload: {
+        email: string;
       };
     };

@@ -3,6 +3,10 @@
   "module": "index.ts",
   "type": "module",
   "private": true,
+  "scripts": {
+    "dev": "bun run index.ts",
+    "start": "bun run index.ts"
+  },
   "dependencies": {
     "ioredis": "^5.3.2",
     "@superapp/db": "workspace:*"
